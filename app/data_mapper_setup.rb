@@ -1,4 +1,5 @@
 require 'data_mapper'
+require 'dm-validations'
 require_relative './models/tag'
 
 env = ENV['RACK_UP'] || "development"

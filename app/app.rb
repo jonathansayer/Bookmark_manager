@@ -24,7 +24,7 @@ class AppWeb < Sinatra::Base
 
  post '/links' do 
    tags = params[:tag].split(" ")
-    link=Link.new(url: params[:url], 
+   link=Link.new(url: params[:url], 
                   title: params[:title])
    tags.each do |tag|
      link.tags <<  Tag.create(name: tag)
@@ -45,17 +45,19 @@ class AppWeb < Sinatra::Base
 
  post '/users' do
   user = User.create(email: params[:email], 
-              password: params[:password])
+              password: params[:password], password_confirmation: params[:password_confirmation])
   session[:user_id] = user.id
   redirect to('/links')
  end
 
 helpers do 
-
- def current_user 
-   @user ||= User.first(id: session[:user_id])
+  def current_user 
+    user ||= User.first(id: session[:user_id])
   end
 
+  def unmatched password, password_confirmation
+    users.password != users.password_confirmation
+  end
 end
 
 end
