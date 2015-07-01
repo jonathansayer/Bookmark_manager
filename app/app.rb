@@ -54,10 +54,6 @@ helpers do
   def current_user 
     user ||= User.first(id: session[:user_id])
   end
-
-  def unmatched password, password_confirmation
-    users.password != users.password_confirmation
-  end
 end
 
 end
