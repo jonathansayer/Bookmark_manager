@@ -44,13 +44,18 @@ class AppWeb < Sinatra::Base
  end
 
  post '/users' do
-   current_user
-   redirect to('/links')
+  user = User.create(email: params[:email], 
+              password: params[:password])
+  session[:user_id] = user.id
+  redirect to('/links')
  end
 
- def current_user
-   session[:user_id] = user.id
-   User.create(email: params[:email],
-     password: params[:password])
- end
+helpers do 
+
+ def current_user 
+   @user ||= User.first(id: session[:user_id])
+  end
+
+end
+
 end
