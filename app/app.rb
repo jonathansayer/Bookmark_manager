@@ -8,61 +8,72 @@ require_relative './models/user'
 
 
 class AppWeb < Sinatra::Base
- run! if app_file == $0
- set :views, proc { File.join(root, '..', 'views') }
+  run! if app_file == $0
+  set :views, proc { File.join(root, '..', 'views') }
 
- enable :sessions
- register Sinatra::Flash
- set :session_secret, 'super secret'
+  enable :sessions
+  register Sinatra::Flash
+  set :session_secret, 'super secret'
 
- get '/links' do
-   @links = Link.all
-   erb :'links/index'
- end
+  get '/' do
+    redirect to('/links')
+  end
 
- get '/links/new' do 
+  get '/links' do
+    @links = Link.all
+    erb :'links/index'
+  end
+
+  get '/links/new' do
     erb :new_links
- end
+  end
 
- post '/links' do 
-   tags = params[:tag].split(" ")
-   link=Link.new(url: params[:url], 
+  post '/links' do
+    tags = params[:tag].split(" ")
+    link=Link.new(url: params[:url],
                   title: params[:title])
-   tags.each do |tag|
-     link.tags <<  Tag.create(name: tag)
-   end
-   link.save
-   redirect to ('/links')
- end
-
- get '/tags/:name' do 
-   tag = Tag.first(name: params[:name])
-   @links = tag ? tag.links : []
-   erb :'links/index'
- end
-
- get '/users/new' do
-  @user = User.new
-   erb:'users/new'
- end
-
- post '/users' do
-  @user = User.new(email: params[:email], 
-              password: params[:password], 
-              password_confirmation: params[:password_confirmation])
-  if @user.save
-    session[:user_id] = @user.id
-    redirect to('/')
-  else 
-    flash.now[:notice] = "Password and confirmation password do not match"
-    erb :'users/new'
+    tags.each do |tag|
+      link.tags <<  Tag.create(name: tag)
+    end
+    link.save
+    redirect to ('/links')
   end
- end
 
-helpers do 
-  def current_user 
-    user ||= User.first(id: session[:user_id])
+  get '/tags/:name' do
+    tag = Tag.first(name: params[:name])
+    @links = tag ? tag.links : []
+    erb :'links/index'
   end
-end
+
+  get '/users/new' do
+    @user = User.new
+    erb:'users/new'
+  end
+
+  post '/users' do
+    if params[:email] == ''
+      @user = User.new
+      flash.now[:notice] = 'Email must not be blank!'
+      erb :'users/new'
+    else
+      @user = User.new(email: params[:email],
+                       password: params[:password],
+                       password_confirmation: params[:password_confirmation])
+
+      if @user.save
+        session[:user_id] = @user.id
+        redirect to('/')
+      else
+        flash.now[:notice] = "Password and confirmation password do not match"
+        erb :'users/new'
+      end
+    end
+  end
+
+  helpers do
+    def current_user
+      user ||= User.first(id: session[:user_id])
+    end
+  end
 
 end

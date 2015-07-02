@@ -7,8 +7,10 @@ class User
 
   validates_confirmation_of :password
 
+
+
   property :id, Serial
-  property :email, String
+  property :email, String, required: true
 
   property :password_digest, Text
 
